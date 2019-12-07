@@ -1,7 +1,8 @@
-package filters;
+package authentication.filters;
 
 import annotations.AuthenticatedUser;
 import annotations.Secured;
+import entities.User;
 import services.UserService;
 
 import javax.annotation.Priority;
@@ -46,7 +47,9 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     }
 
     private void validateToken(String token) {
-        if (userService.findUserByAuthToken(token) == null)
+        User user = userService.findUserByAuthToken(token);
+        if (user == null)
             throw new NotAuthorizedException("Bad auth token");
+        userAuthenticatedEvent.fire(user.getUsername());
     }
 }

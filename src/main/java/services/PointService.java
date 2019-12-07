@@ -22,13 +22,13 @@ public class PointService {
     @EJB
     private Graphic graphic;
 
-    @SneakyThrows
-    public void save(Point dot){
-        em.persist(dot);
+    public void save(Point point){
+        point.setResult(graphic.isInArea(point));
+        em.persist(point);
     }
 
     @SuppressWarnings("unchecked")
-    public List<Point> getAllPoints(User user){
+    public List<Point> getAllPoints(User user) {
         Query query = em.createQuery(("select p from Point p WHERE p.user = :id"));
         query.setParameter("id", user);
         return query.getResultList();

@@ -15,10 +15,10 @@ public class Point {
     private @Id
     @GeneratedValue
     Long id;
-    private Double x;
-    private Double y;
-    private Double r;
-    private Boolean result;
+    private double x;
+    private double y;
+    private double r;
+    private boolean result;
 
     @ManyToOne
     private User user;

@@ -1,46 +1,64 @@
 package controllers;
 
+import annotations.AuthenticatedUser;
 import annotations.Secured;
 import entities.Point;
 import entities.User;
 import services.PointService;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/points")
-@Stateless
+@RequestScoped
 public class PointController {
 
     @EJB
     private PointService pointService;
 
+    @Inject
+    @AuthenticatedUser
+    private User authenticatedUser;
+
+    @PostConstruct
+    public void init() {
+        // Надо переопределить объект пользователя, контейнер инжектит прокси вместо оригинального объекта...
+        authenticatedUser = new User(authenticatedUser.getUsername(), authenticatedUser.getPasswordHash(), authenticatedUser.getAuthToken());
+    }
+
     @Secured
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Point> getAllPoints(User user) {
-        return pointService.getAllPoints(user);
+    public List<Point> getAllPoints() {
+        return pointService.getAllPoints(authenticatedUser);
     }
 
     @Secured
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void newPoint(Point point, User user) {
-        point.setUser(user);
+    public Response newPoint(Point point) {
+        point.setUser(authenticatedUser);
         pointService.save(point);
+        return Response.ok("Point added").build();
     }
 
     @Secured
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recalculate")
-    public List<Point> getAllPoints(User user,
-                                    @QueryParam("r") double r) {
-        return pointService.getAllPoints(user);
+    public List<Point> getAllPointsRecalculated(
+            User user,
+            @QueryParam("r") double r) {
+        return pointService.getAllPointsRecalculated(user, r);
     }
 
 }

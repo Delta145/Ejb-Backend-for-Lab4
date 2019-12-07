@@ -19,16 +19,12 @@ import java.util.List;
 public class PointService {
     @PersistenceContext(unitName = "хибернате козел")
     private EntityManager em;
-    @Resource
-    private UserTransaction tr;
     @EJB
     private Graphic graphic;
 
     @SneakyThrows
     public void save(Point dot){
-        tr.begin();
         em.persist(dot);
-        tr.commit();
     }
 
     @SuppressWarnings("unchecked")
@@ -39,7 +35,7 @@ public class PointService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Point> getAllPointsRecalculated(User user, double r){
+    public List<Point> getAllPointsRecalculated(User user, double r) {
         Query query = em.createQuery(("select p from Point p WHERE p.user = :id"));
         query.setParameter("id", user);
 

@@ -1,29 +1,28 @@
 package services;
 
 import entities.User;
-import lombok.SneakyThrows;
 
-import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.UserTransaction;
+import javax.persistence.Query;
 
 @Stateless
 public class UserService {
     @PersistenceContext(unitName = "хибернате козел")
     private EntityManager em;
-    @Resource
-    private UserTransaction tr;
 
     public User findUserByUsername(String username) {
-        return null;
+        return em.find(User.class, username);
     }
 
-    @SneakyThrows
-    public void saveUser(User user) {
-        tr.begin();
-        em.persist(user);
-        tr.commit();
+    public User findUserByAuthToken(String token) {
+        Query query = em.createQuery(("select u from User u WHERE u.authToken = :token"));
+        query.setParameter("token", token);
+        return (User) query.getSingleResult();
+    }
+
+    public void saveOrUpdateUser(User user) {
+        em.merge(user);
     }
 }

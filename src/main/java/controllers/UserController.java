@@ -25,24 +25,29 @@ public class UserController {
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder();
-
-    private static String generateNewToken() {
-        byte[] randomBytes = new byte[24];
-        secureRandom.nextBytes(randomBytes);
-        return base64Encoder.encodeToString(randomBytes);
-    }
-
-    @SneakyThrows
-    private static String getPasswordHash(String password) {
-        byte[] stub = new byte[16];
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), stub, 65536, 128);
-        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hash = f.generateSecret(spec).getEncoded();
-        return base64Encoder.encodeToString(hash);
-    }
-
     @EJB
     private UserService userService;
+
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("login")
+    public Response login(
+            @FormParam("username") String username,
+            @FormParam("password") String password) {
+        try {
+            if (username == null || password == null)
+                return Response.status(Response.Status.BAD_REQUEST).entity("Username or password is null").build();
+
+            authenticate(username, getPasswordHash(password));
+
+            String token = issueToken(username);
+
+            return Response.ok(token).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Wrong user or password").build();
+        }
+    }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -80,24 +85,19 @@ public class UserController {
         return token;
     }
 
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("login")
-    public Response login(
-            @FormParam("username") String username,
-            @FormParam("password") String password) {
-        try {
-            if (username == null || password == null)
-                return Response.status(Response.Status.BAD_REQUEST).entity("Username or password is null").build();
 
-            authenticate(username, getPasswordHash(password));
-
-            String token = issueToken(username);
-
-            return Response.ok(token).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Wrong user or password").build();
-        }
+    private static String generateNewToken() {
+        byte[] randomBytes = new byte[24];
+        secureRandom.nextBytes(randomBytes);
+        return base64Encoder.encodeToString(randomBytes);
     }
 
+    @SneakyThrows
+    private static String getPasswordHash(String password) {
+        byte[] stub = new byte[16];
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), stub, 65536, 128);
+        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] hash = f.generateSecret(spec).getEncoded();
+        return base64Encoder.encodeToString(hash);
+    }
 }

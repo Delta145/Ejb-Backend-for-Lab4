@@ -2,16 +2,13 @@ package services;
 
 import entities.Point;
 import entities.User;
-import lombok.SneakyThrows;
 import model.Graphic;
 
-import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.transaction.UserTransaction;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -55,10 +55,8 @@ public class PointController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recalculate")
-    public List<Point> getAllPointsRecalculated(
-            User user,
-            @QueryParam("r") double r) {
-        return pointService.getAllPointsRecalculated(user, r);
+    public List<Point> getAllPointsRecalculated(@QueryParam("r") double r) {
+        return pointService.getAllPointsRecalculated(authenticatedUser, r);
     }
 
 }

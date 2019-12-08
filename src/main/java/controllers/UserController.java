@@ -1,5 +1,8 @@
 package controllers;
 
+import annotations.Secured;
+import application.ResponseMessage;
+import authentication.UserCredentials;
 import entities.User;
 import lombok.SneakyThrows;
 import services.UserService;
@@ -9,10 +12,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.naming.AuthenticationException;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
@@ -32,40 +32,60 @@ public class UserController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("login")
-    public Response login(
-            @FormParam("username") String username,
-            @FormParam("password") String password) {
+    public Response login(UserCredentials userCredentials) {
+        String username = userCredentials.getUsername();
+        String password = userCredentials.getPassword();
+
         try {
             if (username == null || password == null)
-                return Response.status(Response.Status.BAD_REQUEST).entity("Username or password is null").build();
+                return Response.status(Response.Status.BAD_REQUEST).entity(
+                        new ResponseMessage("Username or password is null")).build();
 
             authenticate(username, getPasswordHash(password));
 
             String token = issueToken(username);
 
-            return Response.ok(token).build();
+            return Response.ok(new ResponseMessage(token)).build();
         } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Wrong user or password").build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(
+                    new ResponseMessage("Wrong user or password")).build();
+        }
+    }
+
+    @Secured
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("logout")
+    public Response logout(UserCredentials userCredentials) {
+        try {
+            userService.invalidateToken(userCredentials.getUsername());
+            return Response.ok(new ResponseMessage("logout successful")).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("register")
-    public Response register(@FormParam("username") String username,
-                             @FormParam("password") String password) {
+    public Response register(UserCredentials userCredentials) {
+        String username = userCredentials.getUsername();
+        String password = userCredentials.getPassword();
+
         if (username == null || password == null)
-            return Response.status(Response.Status.BAD_REQUEST).entity("Username or password is null").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(
+                    new ResponseMessage("Username or password is null")).build();
 
         if (userService.findUserByUsername(username) != null)
-            return Response.status(Response.Status.CONFLICT).entity("User already exists").build();
+            return Response.status(Response.Status.CONFLICT).entity(
+                    new ResponseMessage("User already exists")).build();
 
         String passwordHash = getPasswordHash(password);
 
         User user = new User(username, passwordHash, null);
         userService.saveOrUpdateUser(user);
 
-        return Response.ok("User successfully registered").build();
+        return Response.ok(new ResponseMessage("User successfully registered")).build();
     }
 
     private void authenticate(String username, String password) throws AuthenticationException {

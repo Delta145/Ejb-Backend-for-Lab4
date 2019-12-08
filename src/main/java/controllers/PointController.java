@@ -2,6 +2,7 @@ package controllers;
 
 import annotations.AuthenticatedUser;
 import annotations.Secured;
+import application.ResponseMessage;
 import entities.Point;
 import entities.User;
 import services.PointService;
@@ -47,8 +48,8 @@ public class PointController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response newPoint(Point point) {
         point.setUser(authenticatedUser);
-        pointService.save(point);
-        return Response.ok("Point added").build();
+        point = pointService.save(point);
+        return Response.ok(point).build();
     }
 
     @Secured

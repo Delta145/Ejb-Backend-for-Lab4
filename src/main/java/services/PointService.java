@@ -19,9 +19,10 @@ public class PointService {
     @EJB
     private Graphic graphic;
 
-    public void save(Point point){
+    public Point save(Point point){
         point.setResult(graphic.isInArea(point));
         em.persist(point);
+        return point;
     }
 
     @SuppressWarnings("unchecked")

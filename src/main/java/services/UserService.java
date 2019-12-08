@@ -22,6 +22,12 @@ public class UserService {
         return (User) query.getSingleResult();
     }
 
+    public void invalidateToken(String username) {
+        User user = findUserByUsername(username);
+        user.setAuthToken(null);
+        em.merge(user);
+    }
+
     public void saveOrUpdateUser(User user) {
         em.merge(user);
     }

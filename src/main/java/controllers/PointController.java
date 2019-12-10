@@ -2,15 +2,12 @@ package controllers;
 
 import annotations.AuthenticatedUser;
 import annotations.Secured;
-import application.ResponseMessage;
 import entities.Point;
 import entities.User;
 import services.PointService;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;

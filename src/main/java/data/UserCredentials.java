@@ -1,4 +1,4 @@
-package authentication;
+package data;
 
 import lombok.Data;
 

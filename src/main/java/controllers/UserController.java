@@ -1,8 +1,8 @@
 package controllers;
 
 import annotations.Secured;
-import application.ResponseMessage;
-import authentication.UserCredentials;
+import data.ResponseMessage;
+import data.UserCredentials;
 import entities.User;
 import lombok.SneakyThrows;
 import services.UserService;
@@ -56,9 +56,10 @@ public class UserController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("logout")
-    public Response logout(UserCredentials userCredentials) {
+    public Response logout(@HeaderParam("Authorization") String authorization) {
+        String token = authorization.substring("Basic".length());
         try {
-            userService.invalidateToken(userCredentials.getUsername());
+            userService.invalidateToken(userService.findUserByAuthToken(token).getUsername());
             return Response.ok(new ResponseMessage("logout successful")).build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -94,7 +95,7 @@ public class UserController {
         if (user == null)
             throw new AuthenticationException("User not found");
         if (!user.getPasswordHash().equals(password))
-            throw new AuthenticationException("Passwords are't equal");
+            throw new AuthenticationException("Passwords aren't equal");
     }
 
     private String issueToken(String username) {

@@ -1,5 +1,14 @@
 plugins {
     id 'java'
+    id 'war'
+}
+
+war {
+    from "web"
+    from('src/main/META-INF') {
+        include 'persistence.xml'
+        into('WEB-INF/classes/META-INF/')
+    }
 }
 
 group 'org.example'
@@ -11,22 +20,25 @@ repositories {
     mavenCentral()
 }
 
+
+war.archiveName "backend.war"
+
 dependencies {
-    // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
+// https://mvnrepository.com/artifact/javax.ws.rs/javax...
     compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
-    // https://mvnrepository.com/artifact/javax.enterprise/cdi-api
+// https://mvnrepository.com/artifact/javax.enterprise/c..
     compileOnly group: 'javax.enterprise', name: 'cdi-api', version: '2.0.SP1'
 
-    // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
+// https://mvnrepository.com/artifact/javax.annotation/j..
     compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
 
-// https://mvnrepository.com/artifact/javax.ejb/javax.ejb-api
+// https://mvnrepository.com/artifact/javax.ejb/javax.ej..
     compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2.2'
-// https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.0-api
+// https://mvnrepository.com/artifact/org.hibernate.java..
     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.0-api', version: '1.0.1.Final'
-// https://mvnrepository.com/artifact/postgresql/postgresql
+// https://mvnrepository.com/artifact/postgresql/postgre..
     compile group: 'postgresql', name: 'postgresql', version: '9.1-901-1.jdbc4'
 
     compileOnly 'org.projectlombok:lombok:1.18.10'

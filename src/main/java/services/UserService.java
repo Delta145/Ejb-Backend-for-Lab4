@@ -9,7 +9,7 @@ import javax.persistence.Query;
 
 @Stateless
 public class UserService {
-    @PersistenceContext(unitName = "хибернате козел")
+    @PersistenceContext(unitName = "db")
     private EntityManager em;
 
     public User findUserByUsername(String username) {

@@ -14,7 +14,7 @@ import java.util.List;
 
 @Stateless
 public class PointService {
-    @PersistenceContext(unitName = "хибернате козел")
+    @PersistenceContext(unitName = "db")
     private EntityManager em;
     @EJB
     private Graphic graphic;
